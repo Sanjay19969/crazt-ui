@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Kinetic Chaos Form</title>
-    <!-- Include Matter.js via CDN -->
+    <title>The Kinetic Chaos Form - Angry Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         /* Base Reset and Background */
@@ -16,7 +15,7 @@
             overflow: hidden;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none; /* Prevent text selection while dragging */
+            user-select: none;
         }
 
         /* Glassmorphism UI Elements */
@@ -33,12 +32,12 @@
             padding: 15px 20px;
             outline: none;
             transition: box-shadow 0.3s ease, border-color 0.3s ease;
-            transform-origin: top left;
-            pointer-events: auto; /* Let mouse interact with form elements */
+            transform-origin: center center;
+            pointer-events: auto;
             z-index: 10;
             font-size: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            user-select: text; /* Allow text selection inside inputs */
+            user-select: text;
         }
 
         .glass-elem::placeholder {
@@ -51,7 +50,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Specific Input Sizing */
         input[type="text"], input[type="email"] {
             width: 250px;
             height: 50px;
@@ -62,10 +60,9 @@
             width: 300px;
             height: 120px;
             box-sizing: border-box;
-            resize: none; /* Disable resize to maintain physics bounds */
+            resize: none;
         }
 
-        /* The Draggable Submit Weight */
         #submit-weight {
             width: 100px;
             height: 100px;
@@ -86,10 +83,8 @@
 
         #submit-weight:active {
             cursor: grabbing;
-            transform: scale(0.95); /* Slight visual feedback, physics bounds remain same */
         }
 
-        /* The Drop Zone (Black Hole / Basket) */
         #drop-zone {
             position: absolute;
             bottom: 40px;
@@ -109,37 +104,28 @@
             letter-spacing: 2px;
             z-index: 5;
             background: rgba(0, 0, 0, 0.4);
-            box-shadow: inset 0 0 20px rgba(0, 255, 150, 0.1);
             transition: all 0.3s ease;
         }
         
-        #drop-zone span {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
         #drop-zone.active {
             background: rgba(0, 255, 150, 0.3);
             border-color: #0f9;
-            box-shadow: 0 0 40px rgba(0, 255, 150, 0.6), inset 0 0 30px rgba(0, 255, 150, 0.4);
+            box-shadow: 0 0 40px rgba(0, 255, 150, 0.6);
             color: #fff;
-            transform: translateX(-50%) scale(1.05);
         }
 
-        /* Custom Modal / Message Box */
+        /* Modal Styles */
         #custom-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             opacity: 1;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
         }
 
         #custom-modal.hidden {
@@ -151,248 +137,161 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
             color: white;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
-            transform: translateY(0);
+            max-width: 400px;
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #custom-modal.hidden .modal-content {
-            transform: translateY(50px);
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            color: #0ff;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-        }
+        #modal-emoji { font-size: 80px; display: block; margin-bottom: 10px; }
+        #modal-title { margin: 10px 0; font-size: 28px; }
+        #modal-text { opacity: 0.8; margin-bottom: 25px; line-height: 1.5; }
 
         .modal-content button {
-            margin-top: 20px;
-            padding: 10px 25px;
-            background: rgba(0, 255, 255, 0.2);
-            border: 1px solid #0ff;
-            color: #fff;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid white;
+            color: white;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.2s ease;
+            font-weight: bold;
+            transition: all 0.2s;
         }
 
         .modal-content button:hover {
-            background: rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+            background: white;
+            color: black;
         }
     </style>
 </head>
 <body>
 
-    <!-- Drop Zone area -->
     <div id="drop-zone">
         Drop Submit Here
-        <span>Drag the red weight</span>
+        <span style="font-size: 10px; opacity: 0.6;">(Validation Required)</span>
     </div>
 
-    <!-- The physical form elements -->
     <input type="text" id="input-name" class="glass-elem" placeholder="Enter your Name" autocomplete="off" />
     <input type="email" id="input-email" class="glass-elem" placeholder="Enter your Email" autocomplete="off" />
     <textarea id="input-message" class="glass-elem" placeholder="Type your message..."></textarea>
     
-    <!-- The Heavy Submit Weight -->
     <div id="submit-weight" class="glass-elem" draggable="false">SUBMIT</div>
 
-    <!-- Custom Modal for Success Message -->
     <div id="custom-modal" class="hidden">
-        <div class="modal-content">
-            <h2>Form Finally Submitted!</h2>
-            <p>Congratulations, you survived the Kinetic Chaos UX.</p>
-            <button onclick="resetExperiment()">Reset Chaos</button>
+        <div class="modal-content" id="modal-box">
+            <span id="modal-emoji">🎉</span>
+            <h2 id="modal-title">Success!</h2>
+            <p id="modal-text">Message sent.</p>
+            <button onclick="resetExperiment()">Continue Chaos</button>
         </div>
     </div>
 
     <script>
-        // Matter.js modules
-        const Engine = Matter.Engine,
-              Runner = Matter.Runner,
-              Bodies = Matter.Bodies,
-              Composite = Matter.Composite,
-              Events = Matter.Events;
-
-        // Initialize Physics Engine
+        const Engine = Matter.Engine, Runner = Matter.Runner, Bodies = Matter.Bodies, Composite = Matter.Composite, Events = Matter.Events;
         const engine = Engine.create();
-        
-        // --- ZERO GRAVITY ENVIRONMENT ---
         engine.world.gravity.y = 0; 
-        engine.world.gravity.x = 0;
 
-        // Physics Bodies Array to link DOM and Matter bodies
         let bodiesMap = [];
         let walls = [];
         let submitted = false;
+        let isDraggingSubmit = false;
+        let submitBodyRef = null;
 
-        // Ensure DOM has fully rendered before calculating sizes
-        window.onload = () => {
-            initPhysics();
-        };
+        window.onload = () => initPhysics();
 
         function initPhysics() {
             createWalls();
-
-            // Define our form elements
             const formElements = [
                 { id: 'input-name', type: 'rect' },
                 { id: 'input-email', type: 'rect' },
                 { id: 'input-message', type: 'rect' },
-                { id: 'submit-weight', type: 'circle', radius: 50 } // radius matches CSS (100px width/height)
+                { id: 'submit-weight', type: 'circle', radius: 50 }
             ];
 
             formElements.forEach(item => {
                 const el = document.getElementById(item.id);
                 const rect = el.getBoundingClientRect();
+                const startX = (window.innerWidth / 2) + (Math.random() - 0.5) * 400;
+                const startY = (window.innerHeight / 2) + (Math.random() - 0.5) * 400;
+
                 let body;
-
-                // Start elements at random safe positions near center
-                const startX = (window.innerWidth / 2) + (Math.random() - 0.5) * 300;
-                const startY = (window.innerHeight / 2) + (Math.random() - 0.5) * 300;
-
                 if (item.type === 'rect') {
                     body = Bodies.rectangle(startX, startY, rect.width, rect.height, {
-                        restitution: 0.8,    // Bounciness
-                        frictionAir: 0.02,   // Slight air resistance
-                        density: 0.001
+                        restitution: 0.8, frictionAir: 0.03, density: 0.001
                     });
-                    
-                    // Prevent inputs from spinning so text stays readable
                     Matter.Body.setInertia(body, Infinity); 
                 } else {
                     body = Bodies.circle(startX, startY, item.radius, {
-                        restitution: 0.4,    // Heavy thud
-                        frictionAir: 0.05,
-                        density: 0.05        // Much heavier than inputs
+                        restitution: 0.4, frictionAir: 0.05, density: 0.05
                     });
                 }
 
                 Composite.add(engine.world, body);
                 bodiesMap.push({ el, body, id: item.id });
 
-                // --- CATCH TO TYPE MECHANIC ---
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                    // Freeze on focus
                     el.addEventListener('focus', () => {
                         if(submitted) return;
                         Matter.Body.setStatic(body, true);
-                        body.isFocused = true;
                     });
-                    
-                    // Unfreeze and add small repulsive kick on blur
                     el.addEventListener('blur', () => {
                         if(submitted) return;
                         Matter.Body.setStatic(body, false);
-                        body.isFocused = false;
-                        
-                        // Push away randomly
-                        Matter.Body.applyForce(body, body.position, {
-                            x: (Math.random() - 0.5) * 0.03,
-                            y: (Math.random() - 0.5) * 0.03
-                        });
+                        Matter.Body.applyForce(body, body.position, { x: (Math.random()-0.5)*0.02, y: (Math.random()-0.5)*0.02 });
                     });
                 }
             });
 
-            // Start the physics loop
             const runner = Runner.create();
             Runner.run(runner, engine);
-            
-            // Start custom visual sync loop
             requestAnimationFrame(syncVisuals);
         }
 
-        // --- SCREEN BOUNDARIES ---
         function createWalls() {
-            // Remove existing walls if any
             if (walls.length > 0) Composite.remove(engine.world, walls);
-            
-            const wallOptions = { 
-                isStatic: true, 
-                restitution: 0.5 // Bouncy walls
-            };
-            
-            // Create massively long walls so we don't need to resize them, just reposition them
+            const wallOptions = { isStatic: true, restitution: 0.8 };
             walls = [
-                Bodies.rectangle(window.innerWidth/2, -50, 5000, 100, wallOptions), // Top
-                Bodies.rectangle(window.innerWidth/2, window.innerHeight+50, 5000, 100, wallOptions), // Bottom
-                Bodies.rectangle(-50, window.innerHeight/2, 100, 5000, wallOptions), // Left
-                Bodies.rectangle(window.innerWidth+50, window.innerHeight/2, 100, 5000, wallOptions) // Right
+                Bodies.rectangle(window.innerWidth/2, -50, 5000, 100, wallOptions),
+                Bodies.rectangle(window.innerWidth/2, window.innerHeight+50, 5000, 100, wallOptions),
+                Bodies.rectangle(-50, window.innerHeight/2, 100, 5000, wallOptions),
+                Bodies.rectangle(window.innerWidth+50, window.innerHeight/2, 100, 5000, wallOptions)
             ];
             Composite.add(engine.world, walls);
         }
 
-        // Handle window resizing
-        window.addEventListener('resize', () => {
-            createWalls();
-        });
+        window.addEventListener('resize', createWalls);
 
-        // --- MOUSE TRACKING & REPULSION ---
         let mousePos = { x: -1000, y: -1000 };
-        document.addEventListener('mousemove', (e) => {
-            mousePos.x = e.clientX;
-            mousePos.y = e.clientY;
-        });
+        document.addEventListener('mousemove', (e) => { mousePos.x = e.clientX; mousePos.y = e.clientY; });
 
         Events.on(engine, 'beforeUpdate', () => {
             if (submitted) return;
-
             bodiesMap.forEach(({ body, el }) => {
-                if (body.isStatic || body.isFocused) return; // Don't move frozen elements
-
-                // 1. Continuous tiny random drifting force
-                Matter.Body.applyForce(body, body.position, {
-                    x: (Math.random() - 0.5) * 0.0003 * body.mass,
-                    y: (Math.random() - 0.5) * 0.0003 * body.mass
-                });
-
-                // 2. Hostile Mouse Repulsion
-                const dx = body.position.x - mousePos.x;
-                const dy = body.position.y - mousePos.y;
+                if (body.isStatic) return;
+                const dx = body.position.x - mousePos.x, dy = body.position.y - mousePos.y;
                 const dist = Math.sqrt(dx*dx + dy*dy);
-
-                // If cursor is within 200px, push it away (exclude the submit button from repulsion so user can grab it)
                 if (dist < 200 && el.id !== 'submit-weight' && !isDraggingSubmit) {
-                    const forceMagnitude = 0.0015 * body.mass * (200 - dist) / 200;
-                    Matter.Body.applyForce(body, body.position, {
-                        x: (dx / dist) * forceMagnitude,
-                        y: (dy / dist) * forceMagnitude
-                    });
+                    const force = 0.001 * body.mass * (200 - dist) / 200;
+                    Matter.Body.applyForce(body, body.position, { x: (dx/dist)*force, y: (dy/dist)*force });
                 }
             });
         });
 
-        // --- MANUAL DRAG MECHANIC FOR SUBMIT WEIGHT ---
-        // We use manual tracking instead of Matter.MouseConstraint to avoid hijacking standard DOM inputs
-        let isDraggingSubmit = false;
-        let submitBodyRef = null;
-
-        document.getElementById('submit-weight').addEventListener('mousedown', (e) => {
+        // Submit Drag Logic
+        const submitEl = document.getElementById('submit-weight');
+        submitEl.addEventListener('mousedown', () => {
             if (submitted) return;
             isDraggingSubmit = true;
-            const match = bodiesMap.find(b => b.id === 'submit-weight');
-            submitBodyRef = match.body;
-            
-            // Freeze physics body while dragging so it maps perfectly to cursor
+            submitBodyRef = bodiesMap.find(b => b.id === 'submit-weight').body;
             Matter.Body.setStatic(submitBodyRef, true);
         });
 
         document.addEventListener('mousemove', (e) => {
             if (isDraggingSubmit && submitBodyRef) {
-                // Instantly update the physics body to the mouse coordinate
                 Matter.Body.setPosition(submitBodyRef, { x: e.clientX, y: e.clientY });
-                
-                // Visual feedback if hovering over Drop Zone
-                const dzRect = document.getElementById('drop-zone').getBoundingClientRect();
-                if (e.clientX > dzRect.left && e.clientX < dzRect.right &&
-                    e.clientY > dzRect.top && e.clientY < dzRect.bottom) {
+                const dz = document.getElementById('drop-zone').getBoundingClientRect();
+                if (e.clientX > dz.left && e.clientX < dz.right && e.clientY > dz.top && e.clientY < dz.bottom) {
                     document.getElementById('drop-zone').classList.add('active');
                 } else {
                     document.getElementById('drop-zone').classList.remove('active');
@@ -400,89 +299,92 @@
             }
         });
 
-        document.addEventListener('mouseup', (e) => {
+        document.addEventListener('mouseup', () => {
             if (isDraggingSubmit && submitBodyRef) {
                 isDraggingSubmit = false;
-                
-                // Unfreeze physics body
                 Matter.Body.setStatic(submitBodyRef, false);
-                
-                // Check Drop Zone logic on Release
-                const dzRect = document.getElementById('drop-zone').getBoundingClientRect();
-                if (submitBodyRef.position.x > dzRect.left && submitBodyRef.position.x < dzRect.right &&
-                    submitBodyRef.position.y > dzRect.top && submitBodyRef.position.y < dzRect.bottom) {
+                const dz = document.getElementById('drop-zone').getBoundingClientRect();
+                if (submitBodyRef.position.x > dz.left && submitBodyRef.position.x < dz.right &&
+                    submitBodyRef.position.y > dz.top && submitBodyRef.position.y < dz.bottom) {
                     executeSubmission();
-                } else {
-                    document.getElementById('drop-zone').classList.remove('active');
                 }
                 submitBodyRef = null;
             }
         });
 
-        // --- SUBMIT CLIMAX ---
         function executeSubmission() {
-            if (submitted) return;
-            submitted = true;
-            document.getElementById('drop-zone').classList.add('active');
+            const name = document.getElementById('input-name').value.trim();
+            const email = document.getElementById('input-email').value.trim();
+            const msg = document.getElementById('input-message').value.trim();
+            
+            const modal = document.getElementById('custom-modal');
+            const mEmoji = document.getElementById('modal-emoji');
+            const mTitle = document.getElementById('modal-title');
+            const mText = document.getElementById('modal-text');
+            const mBox = document.getElementById('modal-box');
 
-            // Trigger Massive Explosion
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
+            // --- VALIDATION CHECK ---
+            if (!name || !email || !msg) {
+                mEmoji.innerText = "😡";
+                mTitle.innerText = "INCOMPLETE!";
+                mTitle.style.color = "#ff4d4d";
+                mText.innerText = "The chaos demands data. Fill in all fields before submitting!";
+                mBox.style.boxShadow = "0 0 50px rgba(255, 0, 0, 0.5)";
+                modal.classList.remove('hidden');
 
-            bodiesMap.forEach(({ body, el }) => {
-                // Ensure everything can move
-                Matter.Body.setStatic(body, false);
-                el.blur(); // Remove focus
-
-                // Calculate outward force vector
-                const dx = body.position.x - centerX;
-                const dy = body.position.y - centerY;
-                const dist = Math.sqrt(dx*dx + dy*dy) || 1; // Prevent divide by 0
-                
-                // Apply massive force
-                Matter.Body.applyForce(body, body.position, {
-                    x: (dx / dist) * body.mass * 0.2,
-                    y: (dy / dist) * body.mass * 0.2
+                // Punishment: Shake the elements
+                bodiesMap.forEach(({body}) => {
+                    Matter.Body.applyForce(body, body.position, { 
+                        x: (Math.random()-0.5)*0.1, 
+                        y: (Math.random()-0.5)*0.1 
+                    });
                 });
+                return;
+            }
+
+            // --- SUCCESS FLOW ---
+            submitted = true;
+            mEmoji.innerText = "🎉";
+            mTitle.innerText = "Chaos Conquered!";
+            mTitle.style.color = "#00ffff";
+            mText.innerText = "Your message has been sent through the void.";
+            mBox.style.boxShadow = "0 0 50px rgba(0, 255, 255, 0.3)";
+
+            const centerX = window.innerWidth / 2, centerY = window.innerHeight / 2;
+            bodiesMap.forEach(({ body, el }) => {
+                Matter.Body.setStatic(body, false);
+                el.blur();
+                const dx = body.position.x - centerX, dy = body.position.y - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                Matter.Body.applyForce(body, body.position, { x: (dx/dist)*body.mass*0.25, y: (dy/dist)*body.mass*0.25 });
             });
 
-            // Delay modal slightly for dramatic effect
-            setTimeout(() => {
-                document.getElementById('custom-modal').classList.remove('hidden');
-            }, 800);
+            setTimeout(() => modal.classList.remove('hidden'), 600);
         }
 
-        // --- SYNC PHYSICS TO DOM ---
         function syncVisuals() {
             bodiesMap.forEach(({ body, el }) => {
-                // We use transform translate to perfectly overlay the DOM element onto the center of the Matter body
                 el.style.transform = `translate(${body.position.x - el.offsetWidth / 2}px, ${body.position.y - el.offsetHeight / 2}px) rotate(${body.angle}rad)`;
             });
             requestAnimationFrame(syncVisuals);
         }
 
-        // --- UTILITY: RESET STATE ---
         function resetExperiment() {
             document.getElementById('custom-modal').classList.add('hidden');
             document.getElementById('drop-zone').classList.remove('active');
             
-            // Clear inputs
-            document.getElementById('input-name').value = '';
-            document.getElementById('input-email').value = '';
-            document.getElementById('input-message').value = '';
-
-            // Reset bodies near center with zero velocity
-            bodiesMap.forEach(({ body }) => {
-                const startX = (window.innerWidth / 2) + (Math.random() - 0.5) * 200;
-                const startY = (window.innerHeight / 2) + (Math.random() - 0.5) * 200;
-                Matter.Body.setPosition(body, { x: startX, y: startY });
-                Matter.Body.setVelocity(body, { x: 0, y: 0 });
-                Matter.Body.setAngularVelocity(body, 0);
-            });
-
-            submitted = false;
+            if (submitted) {
+                document.querySelectorAll('.glass-elem').forEach(el => { if(el.tagName !== 'DIV') el.value = ''; });
+                bodiesMap.forEach(({ body }) => {
+                    Matter.Body.setPosition(body, { 
+                        x: window.innerWidth/2 + (Math.random()-0.5)*200, 
+                        y: window.innerHeight/2 + (Math.random()-0.5)*200 
+                    });
+                    Matter.Body.setVelocity(body, { x: 0, y: 0 });
+                });
+                submitted = false;
+            }
         }
-
     </script>
 </body>
 </html>
