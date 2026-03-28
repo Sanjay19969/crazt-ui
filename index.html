@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <style>
         /* Base Reset and Background */
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -50,7 +52,8 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        input[type="text"], input[type="email"] {
+        input[type="text"],
+        input[type="email"] {
             width: 250px;
             height: 50px;
             box-sizing: border-box;
@@ -71,7 +74,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            background: radial-gradient(circle, rgba(255,70,70,0.4) 0%, rgba(200,0,0,0.6) 100%);
+            background: radial-gradient(circle, rgba(255, 70, 70, 0.4) 0%, rgba(200, 0, 0, 0.6) 100%);
             border: 2px solid rgba(255, 100, 100, 0.8);
             cursor: grab;
             user-select: none;
@@ -106,7 +109,7 @@
             background: rgba(0, 0, 0, 0.4);
             transition: all 0.3s ease;
         }
-        
+
         #drop-zone.active {
             background: rgba(0, 255, 150, 0.3);
             border-color: #0f9;
@@ -117,7 +120,10 @@
         /* Modal Styles */
         #custom-modal {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(15px);
             display: flex;
@@ -144,9 +150,22 @@
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #modal-emoji { font-size: 80px; display: block; margin-bottom: 10px; }
-        #modal-title { margin: 10px 0; font-size: 28px; }
-        #modal-text { opacity: 0.8; margin-bottom: 25px; line-height: 1.5; }
+        #modal-emoji {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #modal-title {
+            margin: 10px 0;
+            font-size: 28px;
+        }
+
+        #modal-text {
+            opacity: 0.8;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
 
         .modal-content button {
             padding: 12px 30px;
@@ -165,6 +184,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div id="drop-zone">
@@ -175,7 +195,7 @@
     <input type="text" id="input-name" class="glass-elem" placeholder="Enter your Name" autocomplete="off" />
     <input type="email" id="input-email" class="glass-elem" placeholder="Enter your Email" autocomplete="off" />
     <textarea id="input-message" class="glass-elem" placeholder="Type your message..."></textarea>
-    
+
     <div id="submit-weight" class="glass-elem" draggable="false">SUBMIT</div>
 
     <div id="custom-modal" class="hidden">
@@ -190,7 +210,7 @@
     <script>
         const Engine = Matter.Engine, Runner = Matter.Runner, Bodies = Matter.Bodies, Composite = Matter.Composite, Events = Matter.Events;
         const engine = Engine.create();
-        engine.world.gravity.y = 0; 
+        engine.world.gravity.y = 0;
 
         let bodiesMap = [];
         let walls = [];
@@ -220,7 +240,7 @@
                     body = Bodies.rectangle(startX, startY, rect.width, rect.height, {
                         restitution: 0.8, frictionAir: 0.03, density: 0.001
                     });
-                    Matter.Body.setInertia(body, Infinity); 
+                    Matter.Body.setInertia(body, Infinity);
                 } else {
                     body = Bodies.circle(startX, startY, item.radius, {
                         restitution: 0.4, frictionAir: 0.05, density: 0.05
@@ -232,13 +252,13 @@
 
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                     el.addEventListener('focus', () => {
-                        if(submitted) return;
+                        if (submitted) return;
                         Matter.Body.setStatic(body, true);
                     });
                     el.addEventListener('blur', () => {
-                        if(submitted) return;
+                        if (submitted) return;
                         Matter.Body.setStatic(body, false);
-                        Matter.Body.applyForce(body, body.position, { x: (Math.random()-0.5)*0.02, y: (Math.random()-0.5)*0.02 });
+                        Matter.Body.applyForce(body, body.position, { x: (Math.random() - 0.5) * 0.02, y: (Math.random() - 0.5) * 0.02 });
                     });
                 }
             });
@@ -252,10 +272,10 @@
             if (walls.length > 0) Composite.remove(engine.world, walls);
             const wallOptions = { isStatic: true, restitution: 0.8 };
             walls = [
-                Bodies.rectangle(window.innerWidth/2, -50, 5000, 100, wallOptions),
-                Bodies.rectangle(window.innerWidth/2, window.innerHeight+50, 5000, 100, wallOptions),
-                Bodies.rectangle(-50, window.innerHeight/2, 100, 5000, wallOptions),
-                Bodies.rectangle(window.innerWidth+50, window.innerHeight/2, 100, 5000, wallOptions)
+                Bodies.rectangle(window.innerWidth / 2, -50, 5000, 100, wallOptions),
+                Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, 5000, 100, wallOptions),
+                Bodies.rectangle(-50, window.innerHeight / 2, 100, 5000, wallOptions),
+                Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, 5000, wallOptions)
             ];
             Composite.add(engine.world, walls);
         }
@@ -270,10 +290,10 @@
             bodiesMap.forEach(({ body, el }) => {
                 if (body.isStatic) return;
                 const dx = body.position.x - mousePos.x, dy = body.position.y - mousePos.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
+                const dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < 200 && el.id !== 'submit-weight' && !isDraggingSubmit) {
                     const force = 0.001 * body.mass * (200 - dist) / 200;
-                    Matter.Body.applyForce(body, body.position, { x: (dx/dist)*force, y: (dy/dist)*force });
+                    Matter.Body.applyForce(body, body.position, { x: (dx / dist) * force, y: (dy / dist) * force });
                 }
             });
         });
@@ -316,7 +336,7 @@
             const name = document.getElementById('input-name').value.trim();
             const email = document.getElementById('input-email').value.trim();
             const msg = document.getElementById('input-message').value.trim();
-            
+
             const modal = document.getElementById('custom-modal');
             const mEmoji = document.getElementById('modal-emoji');
             const mTitle = document.getElementById('modal-title');
@@ -333,10 +353,10 @@
                 modal.classList.remove('hidden');
 
                 // Punishment: Shake the elements
-                bodiesMap.forEach(({body}) => {
-                    Matter.Body.applyForce(body, body.position, { 
-                        x: (Math.random()-0.5)*0.1, 
-                        y: (Math.random()-0.5)*0.1 
+                bodiesMap.forEach(({ body }) => {
+                    Matter.Body.applyForce(body, body.position, {
+                        x: (Math.random() - 0.5) * 0.1,
+                        y: (Math.random() - 0.5) * 0.1
                     });
                 });
                 return;
@@ -355,8 +375,8 @@
                 Matter.Body.setStatic(body, false);
                 el.blur();
                 const dx = body.position.x - centerX, dy = body.position.y - centerY;
-                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-                Matter.Body.applyForce(body, body.position, { x: (dx/dist)*body.mass*0.25, y: (dy/dist)*body.mass*0.25 });
+                const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                Matter.Body.applyForce(body, body.position, { x: (dx / dist) * body.mass * 0.25, y: (dy / dist) * body.mass * 0.25 });
             });
 
             setTimeout(() => modal.classList.remove('hidden'), 600);
@@ -372,13 +392,13 @@
         function resetExperiment() {
             document.getElementById('custom-modal').classList.add('hidden');
             document.getElementById('drop-zone').classList.remove('active');
-            
+
             if (submitted) {
-                document.querySelectorAll('.glass-elem').forEach(el => { if(el.tagName !== 'DIV') el.value = ''; });
+                document.querySelectorAll('.glass-elem').forEach(el => { if (el.tagName !== 'DIV') el.value = ''; });
                 bodiesMap.forEach(({ body }) => {
-                    Matter.Body.setPosition(body, { 
-                        x: window.innerWidth/2 + (Math.random()-0.5)*200, 
-                        y: window.innerHeight/2 + (Math.random()-0.5)*200 
+                    Matter.Body.setPosition(body, {
+                        x: window.innerWidth / 2 + (Math.random() - 0.5) * 200,
+                        y: window.innerHeight / 2 + (Math.random() - 0.5) * 200
                     });
                     Matter.Body.setVelocity(body, { x: 0, y: 0 });
                 });
@@ -387,4 +407,5 @@
         }
     </script>
 </body>
+
 </html>
